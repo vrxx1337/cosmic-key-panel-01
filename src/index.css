@@ -6,51 +6,51 @@
 
 @layer base {
   :root {
-    /* Cosmic Purple Theme */
-    --background: 260 30% 6%;
-    --foreground: 270 20% 95%;
+    /* Electric Violet Theme */
+    --background: 250 35% 5%;
+    --foreground: 250 20% 95%;
 
-    --card: 260 25% 10%;
-    --card-foreground: 270 20% 95%;
+    --card: 250 30% 9%;
+    --card-foreground: 250 20% 95%;
 
-    --popover: 260 25% 10%;
-    --popover-foreground: 270 20% 95%;
+    --popover: 250 30% 9%;
+    --popover-foreground: 250 20% 95%;
 
-    --primary: 270 80% 60%;
+    --primary: 258 90% 66%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 280 60% 20%;
-    --secondary-foreground: 270 20% 95%;
+    --secondary: 255 50% 18%;
+    --secondary-foreground: 250 20% 95%;
 
-    --muted: 260 20% 15%;
-    --muted-foreground: 270 15% 60%;
+    --muted: 250 25% 14%;
+    --muted-foreground: 250 15% 55%;
 
-    --accent: 280 100% 70%;
+    --accent: 280 85% 65%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 70% 50%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 270 30% 20%;
-    --input: 270 30% 15%;
-    --ring: 270 80% 60%;
+    --border: 255 35% 18%;
+    --input: 255 30% 12%;
+    --ring: 258 90% 66%;
 
     --radius: 0.75rem;
 
     /* Custom tokens */
-    --cosmic-glow: 270 100% 60%;
-    --cosmic-purple: 270 80% 55%;
-    --cosmic-violet: 280 70% 50%;
-    --cosmic-dark: 260 40% 8%;
-    --cosmic-card: 260 30% 12%;
-    --cosmic-border: 270 40% 25%;
-    --success: 150 80% 45%;
-    --warning: 45 100% 55%;
+    --cosmic-glow: 258 100% 70%;
+    --cosmic-purple: 258 85% 60%;
+    --cosmic-violet: 275 80% 58%;
+    --cosmic-dark: 250 45% 6%;
+    --cosmic-card: 250 35% 11%;
+    --cosmic-border: 255 40% 22%;
+    --success: 160 84% 39%;
+    --warning: 38 92% 50%;
 
     /* Gradients */
-    --gradient-cosmic: linear-gradient(135deg, hsl(270 80% 55%) 0%, hsl(280 70% 50%) 50%, hsl(300 60% 45%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(260 30% 14%) 0%, hsl(260 25% 10%) 100%);
-    --gradient-glow: radial-gradient(ellipse at center, hsl(270 100% 60% / 0.15) 0%, transparent 70%);
+    --gradient-cosmic: linear-gradient(135deg, hsl(258 85% 60%) 0%, hsl(275 80% 58%) 50%, hsl(290 70% 55%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(250 35% 12%) 0%, hsl(250 30% 9%) 100%);
+    --gradient-glow: radial-gradient(ellipse at center, hsl(258 100% 70% / 0.15) 0%, transparent 70%);
   }
 
   .dark {
