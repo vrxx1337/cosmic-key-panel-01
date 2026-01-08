@@ -8,35 +8,41 @@ import { RecentSearches } from "@/components/RecentSearches";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("search");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background">
       {/* Sidebar */}
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <Sidebar 
+        activeTab={activeTab} 
+        onTabChange={setActiveTab}
+        isOpen={sidebarOpen}
+        onToggle={() => setSidebarOpen(!sidebarOpen)}
+      />
 
       {/* Main Content */}
-      <div className="ml-64">
+      <div className="lg:ml-64 min-h-screen">
         {/* Header */}
         <Header />
 
         {/* Content */}
-        <main className="p-6">
+        <main className="p-4 lg:p-6">
           {/* Stats Overview */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-4 lg:mb-6">
             <StatsCard
-              title="Tổng tra cứu hôm nay"
+              title="Tra cứu hôm nay"
               value="1,234"
               icon={Search}
               trend={{ value: 12, isPositive: true }}
             />
             <StatsCard
-              title="Người dùng hoạt động"
+              title="Users hoạt động"
               value="856"
               icon={Users}
               trend={{ value: 8, isPositive: true }}
             />
             <StatsCard
-              title="Key đang hoạt động"
+              title="Key hoạt động"
               value="127"
               icon={Key}
               trend={{ value: 3, isPositive: false }}
@@ -49,18 +55,18 @@ const Index = () => {
           </div>
 
           {/* Main Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 lg:gap-6">
             {/* Left Column - UID Lookup */}
-            <div className="lg:col-span-2">
+            <div className="xl:col-span-2">
               <UIDLookup />
             </div>
 
             {/* Right Column - Recent & Stats */}
-            <div className="space-y-6">
+            <div className="space-y-4 lg:space-y-6">
               <RecentSearches />
 
               {/* Quick Stats */}
-              <div className="glass rounded-2xl p-5">
+              <div className="glass rounded-2xl p-4 lg:p-5">
                 <div className="flex items-center gap-2 mb-4">
                   <TrendingUp className="w-5 h-5 text-primary" />
                   <h3 className="font-display font-semibold text-foreground">
@@ -74,7 +80,7 @@ const Index = () => {
                     <span className="font-display font-semibold text-success">1,215</span>
                   </div>
                   <div className="h-2 rounded-full bg-muted overflow-hidden">
-                    <div className="h-full w-[98%] rounded-full bg-gradient-to-r from-cosmic-purple to-cosmic-violet" />
+                    <div className="h-full w-[98%] rounded-full bg-gradient-to-r from-primary to-accent" />
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -88,7 +94,7 @@ const Index = () => {
               </div>
 
               {/* System Status */}
-              <div className="glass rounded-2xl p-5">
+              <div className="glass rounded-2xl p-4 lg:p-5">
                 <div className="flex items-center gap-2 mb-4">
                   <Clock className="w-5 h-5 text-primary" />
                   <h3 className="font-display font-semibold text-foreground">
@@ -99,21 +105,21 @@ const Index = () => {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 rounded-lg bg-success/10">
                     <span className="text-sm text-foreground">API Server</span>
-                    <span className="flex items-center gap-2 text-sm text-success">
+                    <span className="flex items-center gap-2 text-xs lg:text-sm text-success">
                       <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
                       Hoạt động
                     </span>
                   </div>
                   <div className="flex items-center justify-between p-3 rounded-lg bg-success/10">
                     <span className="text-sm text-foreground">Database</span>
-                    <span className="flex items-center gap-2 text-sm text-success">
+                    <span className="flex items-center gap-2 text-xs lg:text-sm text-success">
                       <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
                       Hoạt động
                     </span>
                   </div>
                   <div className="flex items-center justify-between p-3 rounded-lg bg-warning/10">
                     <span className="text-sm text-foreground">Cache</span>
-                    <span className="flex items-center gap-2 text-sm text-warning">
+                    <span className="flex items-center gap-2 text-xs lg:text-sm text-warning">
                       <span className="w-2 h-2 rounded-full bg-warning animate-pulse" />
                       Đang tải
                     </span>
