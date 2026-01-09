@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Loader2, User, Trophy, Star, Calendar, Shield, Gamepad2, Users, Heart, Zap, Image } from "lucide-react";
+import { Search, Loader2, User, Trophy, Star, Calendar, Shield, Gamepad2, Users, Heart, Zap, Image, List } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
@@ -95,6 +95,7 @@ export const UIDLookup = () => {
   const [petInfo, setPetInfo] = useState<PetInfo | null>(null);
   const [outfitInfo, setOutfitInfo] = useState<OutfitInfo | null>(null);
   const [error, setError] = useState("");
+  const [showOutfitDetails, setShowOutfitDetails] = useState(false);
 
   const handleSearch = async () => {
     if (!uid.trim()) {
@@ -187,27 +188,52 @@ export const UIDLookup = () => {
           
           {/* Section 1: Outfit/Equipment */}
           <div className="bg-card rounded-xl border border-border p-4 lg:p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <Image className="w-5 h-5 text-muted-foreground" />
-              <h3 className="font-semibold text-foreground">Trang phục</h3>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Image className="w-5 h-5 text-muted-foreground" />
+                <h3 className="font-semibold text-foreground">Trang phục</h3>
+              </div>
             </div>
             
             <div className="flex flex-col items-center">
-              {/* Character Placeholder */}
-              <div className="w-32 h-40 lg:w-40 lg:h-48 rounded-xl bg-secondary border border-border flex items-center justify-center mb-4">
-                <User className="w-16 h-16 lg:w-20 lg:h-20 text-muted-foreground/50" />
-              </div>
-              
-              {outfitInfo && (
-                <div className="w-full space-y-2">
-                  <OutfitItem label="Mũ" value={outfitInfo.head} />
-                  <OutfitItem label="Mặt nạ" value={outfitInfo.mask} />
-                  <OutfitItem label="Áo" value={outfitInfo.top} />
-                  <OutfitItem label="Quần" value={outfitInfo.bottom} />
-                  <OutfitItem label="Giày" value={outfitInfo.shoes} />
-                  <OutfitItem label="Balo" value={outfitInfo.backpack} />
+              {showOutfitDetails ? (
+                // Detail View - Outfit Names
+                outfitInfo && (
+                  <div className="w-full space-y-2">
+                    <OutfitItem label="Mũ" value={outfitInfo.head} />
+                    <OutfitItem label="Mặt nạ" value={outfitInfo.mask} />
+                    <OutfitItem label="Áo" value={outfitInfo.top} />
+                    <OutfitItem label="Quần" value={outfitInfo.bottom} />
+                    <OutfitItem label="Giày" value={outfitInfo.shoes} />
+                    <OutfitItem label="Balo" value={outfitInfo.backpack} />
+                  </div>
+                )
+              ) : (
+                // Image View - Character Outfit
+                <div className="w-full aspect-[3/4] max-w-[200px] rounded-xl bg-secondary border border-border flex items-center justify-center">
+                  <User className="w-20 h-20 lg:w-24 lg:h-24 text-muted-foreground/50" />
                 </div>
               )}
+              
+              {/* Toggle Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowOutfitDetails(!showOutfitDetails)}
+                className="mt-4 text-xs gap-1.5"
+              >
+                {showOutfitDetails ? (
+                  <>
+                    <Image className="w-3.5 h-3.5" />
+                    Xem ảnh
+                  </>
+                ) : (
+                  <>
+                    <List className="w-3.5 h-3.5" />
+                    Xem chi tiết
+                  </>
+                )}
+              </Button>
             </div>
           </div>
 
