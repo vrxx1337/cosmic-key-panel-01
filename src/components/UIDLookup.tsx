@@ -210,8 +210,8 @@ export const UIDLookup = () => {
                 )
               ) : (
                 // Image View - Character Outfit
-                <div className="w-full aspect-[3/4] max-w-[200px] rounded-xl bg-secondary border border-border flex items-center justify-center">
-                  <User className="w-20 h-20 lg:w-24 lg:h-24 text-muted-foreground/50" />
+                <div className="w-full aspect-[3/4] rounded-xl bg-secondary border border-border flex items-center justify-center">
+                  <User className="w-24 h-24 lg:w-32 lg:h-32 text-muted-foreground/50" />
                 </div>
               )}
               
