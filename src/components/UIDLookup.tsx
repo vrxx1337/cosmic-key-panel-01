@@ -187,18 +187,15 @@ export const UIDLookup = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fade-in">
           
           {/* Section 1: Outfit/Equipment */}
-          <div className="bg-card rounded-xl border border-border p-4 lg:p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Image className="w-5 h-5 text-muted-foreground" />
-                <h3 className="font-semibold text-foreground">Trang phục</h3>
-              </div>
-            </div>
-            
-            <div className="flex flex-col items-center">
-              {showOutfitDetails ? (
-                // Detail View - Outfit Names
-                outfitInfo && (
+          <div className="bg-card rounded-xl border border-border overflow-hidden relative">
+            {showOutfitDetails ? (
+              // Detail View - Outfit Names
+              <div className="p-4 lg:p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <Image className="w-5 h-5 text-muted-foreground" />
+                  <h3 className="font-semibold text-foreground">Trang phục</h3>
+                </div>
+                {outfitInfo && (
                   <div className="w-full space-y-2">
                     <OutfitItem label="Mũ" value={outfitInfo.head} />
                     <OutfitItem label="Mặt nạ" value={outfitInfo.mask} />
@@ -207,34 +204,46 @@ export const UIDLookup = () => {
                     <OutfitItem label="Giày" value={outfitInfo.shoes} />
                     <OutfitItem label="Balo" value={outfitInfo.backpack} />
                   </div>
-                )
-              ) : (
-                // Image View - Character Outfit
-                <div className="w-full aspect-[3/4] rounded-xl bg-secondary border border-border flex items-center justify-center">
-                  <User className="w-24 h-24 lg:w-32 lg:h-32 text-muted-foreground/50" />
-                </div>
-              )}
-              
-              {/* Toggle Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowOutfitDetails(!showOutfitDetails)}
-                className="mt-4 text-xs gap-1.5"
-              >
-                {showOutfitDetails ? (
-                  <>
+                )}
+                <div className="flex justify-center mt-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowOutfitDetails(false)}
+                    className="text-xs gap-1.5"
+                  >
                     <Image className="w-3.5 h-3.5" />
                     Xem ảnh
-                  </>
-                ) : (
-                  <>
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              // Image View - Full Cover
+              <div className="relative aspect-[3/4] w-full bg-secondary flex items-center justify-center">
+                <User className="w-28 h-28 lg:w-36 lg:h-36 text-muted-foreground/30" />
+                
+                {/* Overlay Header */}
+                <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/60 to-transparent">
+                  <div className="flex items-center gap-2">
+                    <Image className="w-5 h-5 text-white/90" />
+                    <h3 className="font-semibold text-white/90">Trang phục</h3>
+                  </div>
+                </div>
+                
+                {/* Overlay Button */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent flex justify-center">
+                  <Button
+                    variant="glass"
+                    size="sm"
+                    onClick={() => setShowOutfitDetails(true)}
+                    className="text-xs gap-1.5 text-white border-white/20 hover:bg-white/20"
+                  >
                     <List className="w-3.5 h-3.5" />
                     Xem chi tiết
-                  </>
-                )}
-              </Button>
-            </div>
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Section 2: Player Info */}
