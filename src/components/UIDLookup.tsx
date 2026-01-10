@@ -4,6 +4,8 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
 
+type PlayerStatus = 'online' | 'offline' | 'in-game';
+
 interface PlayerInfo {
   uid: string;
   nickname: string;
@@ -17,7 +19,8 @@ interface PlayerInfo {
   accountCreated: string;
   avatar: string;
   banner: string;
-  isOnline: boolean;
+  status: PlayerStatus;
+  inGameTime?: string; // e.g., "12:34"
 }
 
 interface GuildInfo {
@@ -60,7 +63,8 @@ const mockPlayerData: PlayerInfo = {
   accountCreated: "2020-03-15",
   avatar: "",
   banner: "",
-  isOnline: true,
+  status: "in-game",
+  inGameTime: "12:34",
 };
 
 const mockGuildData: GuildInfo = {
@@ -89,7 +93,11 @@ const mockOutfitData: OutfitInfo = {
   backpack: "Dragon Fury Pack",
 };
 
-export const UIDLookup = () => {
+interface UIDLookupProps {
+  onResultsChange?: (hasResults: boolean) => void;
+}
+
+export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
   const [uid, setUid] = useState("");
   const [loading, setLoading] = useState(false);
   const [playerInfo, setPlayerInfo] = useState<PlayerInfo | null>(null);
@@ -99,6 +107,31 @@ export const UIDLookup = () => {
   const [error, setError] = useState("");
   const [showOutfitDetails, setShowOutfitDetails] = useState(false);
 
+  const MIN_UID_LENGTH = 8;
+  const MIN_UID_VALUE = 10000001;
+
+  const isValidUid = (value: string): boolean => {
+    if (!/^\d+$/.test(value)) return false;
+    if (value.length < MIN_UID_LENGTH) return false;
+    if (parseInt(value, 10) < MIN_UID_VALUE) return false;
+    return true;
+  };
+
+  const handleUidChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setUid(newValue);
+    setError("");
+    
+    // Clear results when UID is cleared
+    if (!newValue.trim()) {
+      setPlayerInfo(null);
+      setGuildInfo(null);
+      setPetInfo(null);
+      setOutfitInfo(null);
+      onResultsChange?.(false);
+    }
+  };
+
   const handleSearch = async () => {
     if (!uid.trim()) {
       setError("Vui lòng nhập UID");
@@ -107,6 +140,16 @@ export const UIDLookup = () => {
 
     if (!/^\d+$/.test(uid)) {
       setError("UID chỉ chứa số");
+      return;
+    }
+
+    if (uid.length < MIN_UID_LENGTH) {
+      setError(`UID phải có ít nhất ${MIN_UID_LENGTH} chữ số`);
+      return;
+    }
+
+    if (parseInt(uid, 10) < MIN_UID_VALUE) {
+      setError(`UID phải lớn hơn hoặc bằng ${MIN_UID_VALUE.toLocaleString()}`);
       return;
     }
 
@@ -126,6 +169,7 @@ export const UIDLookup = () => {
     setPetInfo(mockPetData);
     setOutfitInfo(mockOutfitData);
     setLoading(false);
+    onResultsChange?.(true);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -156,7 +200,7 @@ export const UIDLookup = () => {
           <Input
             placeholder="Nhập UID người chơi..."
             value={uid}
-            onChange={(e) => setUid(e.target.value)}
+            onChange={handleUidChange}
             onKeyPress={handleKeyPress}
             className="flex-1"
           />
@@ -164,7 +208,7 @@ export const UIDLookup = () => {
             variant="default" 
             size="lg"
             onClick={handleSearch}
-            disabled={loading}
+            disabled={loading || !isValidUid(uid)}
             className="sm:w-auto w-full"
           >
             {loading ? (
@@ -210,18 +254,7 @@ export const UIDLookup = () => {
                 <div className="ml-3 pb-1">
                   <h4 className="font-bold text-lg text-foreground">{playerInfo.nickname}</h4>
                   {/* Online Status */}
-                  <div className="flex items-center gap-1.5 my-1">
-                    <Circle className={cn(
-                      "w-2.5 h-2.5 fill-current",
-                      playerInfo.isOnline ? "text-green-500" : "text-muted-foreground"
-                    )} />
-                    <span className={cn(
-                      "text-xs font-medium",
-                      playerInfo.isOnline ? "text-green-500" : "text-muted-foreground"
-                    )}>
-                      {playerInfo.isOnline ? "Đang hoạt động" : "Ngoại tuyến"}
-                    </span>
-                  </div>
+                  <StatusBadge status={playerInfo.status} inGameTime={playerInfo.inGameTime} />
                   <p className="text-xs text-muted-foreground font-mono">UID: {playerInfo.uid}</p>
                 </div>
               </div>
@@ -436,6 +469,58 @@ const OutfitItem = ({ label, value }: OutfitItemProps) => {
     <div className="flex items-center justify-between py-1.5 px-2 rounded-lg bg-secondary/50 text-sm">
       <span className="text-muted-foreground">{label}</span>
       <span className="text-foreground font-medium truncate ml-2">{value}</span>
+    </div>
+  );
+};
+
+interface StatusBadgeProps {
+  status: PlayerStatus;
+  inGameTime?: string;
+}
+
+const StatusBadge = ({ status, inGameTime }: StatusBadgeProps) => {
+  const getStatusConfig = () => {
+    switch (status) {
+      case 'online':
+        return {
+          label: 'Đang hoạt động',
+          bgClass: 'bg-green-500/20',
+          textClass: 'text-green-500',
+          dotClass: 'bg-green-500',
+        };
+      case 'in-game':
+        return {
+          label: inGameTime ? `Trong trận • ${inGameTime}` : 'Trong trận',
+          bgClass: 'bg-amber-500/20',
+          textClass: 'text-amber-500',
+          dotClass: 'bg-amber-500',
+        };
+      case 'offline':
+      default:
+        return {
+          label: 'Ngoại tuyến',
+          bgClass: 'bg-muted',
+          textClass: 'text-muted-foreground',
+          dotClass: 'bg-muted-foreground',
+        };
+    }
+  };
+
+  const config = getStatusConfig();
+
+  return (
+    <div className={cn(
+      "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full my-1",
+      config.bgClass
+    )}>
+      <span className={cn(
+        "w-2 h-2 rounded-full",
+        config.dotClass,
+        status !== 'offline' && "animate-pulse"
+      )} />
+      <span className={cn("text-xs font-medium", config.textClass)}>
+        {config.label}
+      </span>
     </div>
   );
 };
