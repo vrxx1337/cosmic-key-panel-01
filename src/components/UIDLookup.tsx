@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Loader2, User, Trophy, Star, Calendar, Shield, Gamepad2, Users, Heart, Zap, Image, List, Circle } from "lucide-react";
+import { Search, Loader2, User, Trophy, Star, Calendar, Shield, Gamepad2, Users, Heart, Zap, Image, List, AlertCircle, Clock } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
@@ -20,7 +20,7 @@ interface PlayerInfo {
   avatar: string;
   banner: string;
   status: PlayerStatus;
-  inGameTime?: string; // e.g., "12:34"
+  inGameTime?: string;
 }
 
 interface GuildInfo {
@@ -97,6 +97,36 @@ interface UIDLookupProps {
   onResultsChange?: (hasResults: boolean) => void;
 }
 
+// UID Validation helper
+type UidValidation = {
+  isValid: boolean;
+  message: string;
+  type: 'error' | 'warning' | 'success' | 'none';
+};
+
+const validateUid = (value: string): UidValidation => {
+  const MIN_UID_LENGTH = 8;
+  const MIN_UID_VALUE = 10000001;
+
+  if (!value.trim()) {
+    return { isValid: false, message: '', type: 'none' };
+  }
+
+  if (!/^\d+$/.test(value)) {
+    return { isValid: false, message: 'UID phải là số', type: 'error' };
+  }
+
+  if (value.length < MIN_UID_LENGTH) {
+    return { isValid: false, message: `UID phải có ít nhất ${MIN_UID_LENGTH} chữ số`, type: 'warning' };
+  }
+
+  if (parseInt(value, 10) < MIN_UID_VALUE) {
+    return { isValid: false, message: `UID phải lớn hơn hoặc bằng ${MIN_UID_VALUE.toLocaleString()}`, type: 'warning' };
+  }
+
+  return { isValid: true, message: 'UID hợp lệ', type: 'success' };
+};
+
 export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
   const [uid, setUid] = useState("");
   const [loading, setLoading] = useState(false);
@@ -107,15 +137,7 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
   const [error, setError] = useState("");
   const [showOutfitDetails, setShowOutfitDetails] = useState(false);
 
-  const MIN_UID_LENGTH = 8;
-  const MIN_UID_VALUE = 10000001;
-
-  const isValidUid = (value: string): boolean => {
-    if (!/^\d+$/.test(value)) return false;
-    if (value.length < MIN_UID_LENGTH) return false;
-    if (parseInt(value, 10) < MIN_UID_VALUE) return false;
-    return true;
-  };
+  const uidValidation = validateUid(uid);
 
   const handleUidChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -133,23 +155,8 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
   };
 
   const handleSearch = async () => {
-    if (!uid.trim()) {
-      setError("Vui lòng nhập UID");
-      return;
-    }
-
-    if (!/^\d+$/.test(uid)) {
-      setError("UID chỉ chứa số");
-      return;
-    }
-
-    if (uid.length < MIN_UID_LENGTH) {
-      setError(`UID phải có ít nhất ${MIN_UID_LENGTH} chữ số`);
-      return;
-    }
-
-    if (parseInt(uid, 10) < MIN_UID_VALUE) {
-      setError(`UID phải lớn hơn hoặc bằng ${MIN_UID_VALUE.toLocaleString()}`);
+    if (!uidValidation.isValid) {
+      setError(uidValidation.message || "UID không hợp lệ");
       return;
     }
 
@@ -197,18 +204,42 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3">
-          <Input
-            placeholder="Nhập UID người chơi..."
-            value={uid}
-            onChange={handleUidChange}
-            onKeyPress={handleKeyPress}
-            className="flex-1"
-          />
+          <div className="flex-1 space-y-2">
+            <Input
+              placeholder="Nhập UID người chơi..."
+              value={uid}
+              onChange={handleUidChange}
+              onKeyPress={handleKeyPress}
+              className={cn(
+                "transition-all duration-200",
+                uidValidation.type === 'error' && "border-destructive focus-visible:ring-destructive",
+                uidValidation.type === 'warning' && "border-amber-500 focus-visible:ring-amber-500",
+                uidValidation.type === 'success' && "border-green-500 focus-visible:ring-green-500"
+              )}
+            />
+            {/* UID Validation Status */}
+            {uid && (
+              <div className={cn(
+                "flex items-center gap-1.5 text-xs transition-all duration-200 animate-fade-in",
+                uidValidation.type === 'error' && "text-destructive",
+                uidValidation.type === 'warning' && "text-amber-500",
+                uidValidation.type === 'success' && "text-green-500"
+              )}>
+                <span className={cn(
+                  "w-1.5 h-1.5 rounded-full",
+                  uidValidation.type === 'error' && "bg-destructive",
+                  uidValidation.type === 'warning' && "bg-amber-500",
+                  uidValidation.type === 'success' && "bg-green-500"
+                )} />
+                {uidValidation.message}
+              </div>
+            )}
+          </div>
           <Button 
             variant="default" 
             size="lg"
             onClick={handleSearch}
-            disabled={loading || !isValidUid(uid)}
+            disabled={loading || !uidValidation.isValid}
             className="sm:w-auto w-full"
           >
             {loading ? (
@@ -221,19 +252,34 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
         </div>
 
         {error && (
-          <p className="text-destructive text-sm mt-3 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-destructive" />
+          <p className="text-destructive text-sm mt-3 flex items-center gap-2 animate-fade-in">
+            <AlertCircle className="w-4 h-4" />
             {error}
           </p>
         )}
       </div>
 
+      {/* Loading State with Animation */}
+      {loading && (
+        <div className="bg-card rounded-xl border border-border p-8 lg:p-12 text-center animate-fade-in">
+          <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-full bg-secondary flex items-center justify-center mx-auto mb-4">
+            <Loader2 className="w-8 h-8 lg:w-10 lg:h-10 text-primary animate-spin" />
+          </div>
+          <h3 className="font-semibold text-lg lg:text-xl text-foreground mb-2">
+            Đang tải dữ liệu...
+          </h3>
+          <p className="text-sm lg:text-base text-muted-foreground max-w-md mx-auto">
+            Vui lòng đợi trong giây lát
+          </p>
+        </div>
+      )}
+
       {/* Results Grid - 4 Sections */}
-      {playerInfo && (
+      {playerInfo && !loading && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fade-in">
           
           {/* Section 1: Player Info */}
-          <div className="bg-card rounded-xl border border-border p-4 lg:p-5">
+          <div className="bg-card rounded-xl border border-border p-4 lg:p-5 animate-scale-in">
             <div className="flex items-center gap-2 mb-4">
               <User className="w-5 h-5 text-muted-foreground" />
               <h3 className="font-semibold text-foreground">Thông tin người chơi</h3>
@@ -253,12 +299,17 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
                 </div>
                 <div className="ml-3 pb-1">
                   <h4 className="font-bold text-lg text-foreground">{playerInfo.nickname}</h4>
-                  {/* Online Status */}
+                  {/* Online Status - Smaller */}
                   <StatusBadge status={playerInfo.status} inGameTime={playerInfo.inGameTime} />
                   <p className="text-xs text-muted-foreground font-mono">UID: {playerInfo.uid}</p>
                 </div>
               </div>
             </div>
+
+            {/* In-Game Info Card */}
+            {playerInfo.status === 'in-game' && (
+              <InGameInfoCard inGameTime={playerInfo.inGameTime} />
+            )}
 
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
@@ -280,9 +331,12 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
           </div>
 
           {/* Section 2: Outfit/Equipment */}
-          <div className="bg-card rounded-xl border border-border overflow-hidden relative">
-            {showOutfitDetails ? (
-              // Detail View - Outfit Names
+          <div className="bg-card rounded-xl border border-border overflow-hidden relative animate-scale-in">
+            <div className={cn(
+              "transition-all duration-500 ease-in-out",
+              showOutfitDetails ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 absolute inset-0 pointer-events-none"
+            )}>
+              {/* Detail View - Outfit Names */}
               <div className="p-4 lg:p-5">
                 <div className="flex items-center gap-2 mb-4">
                   <Image className="w-5 h-5 text-muted-foreground" />
@@ -310,8 +364,13 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
                   </Button>
                 </div>
               </div>
-            ) : (
-              // Image View - Full Cover
+            </div>
+            
+            <div className={cn(
+              "transition-all duration-500 ease-in-out",
+              !showOutfitDetails ? "opacity-100 scale-100" : "opacity-0 scale-95 absolute inset-0 pointer-events-none"
+            )}>
+              {/* Image View - Full Cover */}
               <div className="relative aspect-[3/4] w-full bg-secondary flex items-center justify-center">
                 <User className="w-28 h-28 lg:w-36 lg:h-36 text-muted-foreground/30" />
                 
@@ -326,7 +385,7 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
                 {/* Overlay Button */}
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent flex justify-center">
                   <Button
-                    variant="glass"
+                    variant="ghost"
                     size="sm"
                     onClick={() => setShowOutfitDetails(true)}
                     className="text-xs gap-1.5 text-white border-white/20 hover:bg-white/20"
@@ -336,11 +395,11 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
                   </Button>
                 </div>
               </div>
-            )}
+            </div>
           </div>
 
           {/* Section 3: Guild Info */}
-          <div className="bg-card rounded-xl border border-border p-4 lg:p-5">
+          <div className="bg-card rounded-xl border border-border p-4 lg:p-5 animate-scale-in" style={{ animationDelay: '100ms' }}>
             <div className="flex items-center gap-2 mb-4">
               <Shield className="w-5 h-5 text-muted-foreground" />
               <h3 className="font-semibold text-foreground">Quân đoàn</h3>
@@ -372,7 +431,7 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
           </div>
 
           {/* Section 4: Pet Info */}
-          <div className="bg-card rounded-xl border border-border p-4 lg:p-5">
+          <div className="bg-card rounded-xl border border-border p-4 lg:p-5 animate-scale-in" style={{ animationDelay: '150ms' }}>
             <div className="flex items-center gap-2 mb-4">
               <Heart className="w-5 h-5 text-muted-foreground" />
               <h3 className="font-semibold text-foreground">Pet</h3>
@@ -411,7 +470,7 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
 
       {/* Empty State */}
       {!playerInfo && !loading && (
-        <div className="bg-card rounded-xl border border-border p-8 lg:p-12 text-center">
+        <div className="bg-card rounded-xl border border-border p-8 lg:p-12 text-center animate-fade-in">
           <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-full bg-secondary flex items-center justify-center mx-auto mb-4">
             <Gamepad2 className="w-8 h-8 lg:w-10 lg:h-10 text-muted-foreground" />
           </div>
@@ -483,22 +542,22 @@ const StatusBadge = ({ status, inGameTime }: StatusBadgeProps) => {
     switch (status) {
       case 'online':
         return {
-          label: 'Đang hoạt động',
+          label: 'Online',
           bgClass: 'bg-green-500/20',
-          textClass: 'text-green-500',
+          textClass: 'text-green-400',
           dotClass: 'bg-green-500',
         };
       case 'in-game':
         return {
-          label: inGameTime ? `Trong trận • ${inGameTime}` : 'Trong trận',
+          label: inGameTime ? `In-game • ${inGameTime}` : 'In-game',
           bgClass: 'bg-amber-500/20',
-          textClass: 'text-amber-500',
+          textClass: 'text-amber-400',
           dotClass: 'bg-amber-500',
         };
       case 'offline':
       default:
         return {
-          label: 'Ngoại tuyến',
+          label: 'Offline',
           bgClass: 'bg-muted',
           textClass: 'text-muted-foreground',
           dotClass: 'bg-muted-foreground',
@@ -510,17 +569,43 @@ const StatusBadge = ({ status, inGameTime }: StatusBadgeProps) => {
 
   return (
     <div className={cn(
-      "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full my-1",
+      "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full my-0.5",
       config.bgClass
     )}>
       <span className={cn(
-        "w-2 h-2 rounded-full",
+        "w-1.5 h-1.5 rounded-full",
         config.dotClass,
         status !== 'offline' && "animate-pulse"
       )} />
-      <span className={cn("text-xs font-medium", config.textClass)}>
+      <span className={cn("text-[10px] font-medium", config.textClass)}>
         {config.label}
       </span>
+    </div>
+  );
+};
+
+interface InGameInfoCardProps {
+  inGameTime?: string;
+}
+
+const InGameInfoCard = ({ inGameTime }: InGameInfoCardProps) => {
+  return (
+    <div className="mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 animate-pulse-glow">
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
+          <Gamepad2 className="w-4 h-4 text-amber-400" />
+        </div>
+        <div className="flex-1">
+          <p className="text-xs text-amber-400 font-medium">Đang trong trận</p>
+          {inGameTime && (
+            <div className="flex items-center gap-1 text-amber-300">
+              <Clock className="w-3 h-3" />
+              <span className="text-[10px] font-mono">{inGameTime}</span>
+            </div>
+          )}
+        </div>
+        <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+      </div>
     </div>
   );
 };
