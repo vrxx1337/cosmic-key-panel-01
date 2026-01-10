@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Loader2, User, Trophy, Star, Calendar, Shield, Gamepad2, Users, Heart, Zap, Image, List } from "lucide-react";
+import { Search, Loader2, User, Trophy, Star, Calendar, Shield, Gamepad2, Users, Heart, Zap, Image, List, Circle } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,7 @@ interface PlayerInfo {
   accountCreated: string;
   avatar: string;
   banner: string;
+  isOnline: boolean;
 }
 
 interface GuildInfo {
@@ -59,6 +60,7 @@ const mockPlayerData: PlayerInfo = {
   accountCreated: "2020-03-15",
   avatar: "",
   banner: "",
+  isOnline: true,
 };
 
 const mockGuildData: GuildInfo = {
@@ -186,7 +188,65 @@ export const UIDLookup = () => {
       {playerInfo && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fade-in">
           
-          {/* Section 1: Outfit/Equipment */}
+          {/* Section 1: Player Info */}
+          <div className="bg-card rounded-xl border border-border p-4 lg:p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <User className="w-5 h-5 text-muted-foreground" />
+              <h3 className="font-semibold text-foreground">Thông tin người chơi</h3>
+            </div>
+
+            {/* Avatar & Banner */}
+            <div className="mb-4">
+              {/* Banner */}
+              <div className="h-20 lg:h-24 rounded-t-xl bg-gradient-to-r from-secondary to-muted flex items-center justify-center border border-border border-b-0">
+                <span className="text-xs text-muted-foreground">Banner</span>
+              </div>
+              
+              {/* Avatar overlapping banner */}
+              <div className="flex items-end -mt-8 pl-4">
+                <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-xl bg-secondary border-4 border-card flex items-center justify-center">
+                  <User className="w-8 h-8 lg:w-10 lg:h-10 text-muted-foreground" />
+                </div>
+                <div className="ml-3 pb-1">
+                  <h4 className="font-bold text-lg text-foreground">{playerInfo.nickname}</h4>
+                  {/* Online Status */}
+                  <div className="flex items-center gap-1.5 my-1">
+                    <Circle className={cn(
+                      "w-2.5 h-2.5 fill-current",
+                      playerInfo.isOnline ? "text-green-500" : "text-muted-foreground"
+                    )} />
+                    <span className={cn(
+                      "text-xs font-medium",
+                      playerInfo.isOnline ? "text-green-500" : "text-muted-foreground"
+                    )}>
+                      {playerInfo.isOnline ? "Đang hoạt động" : "Ngoại tuyến"}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground font-mono">UID: {playerInfo.uid}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <InfoItem icon={Star} label="Level" value={playerInfo.level.toString()} />
+                <InfoItem icon={Heart} label="Likes" value={playerInfo.likes.toLocaleString()} />
+                <InfoItem icon={Trophy} label="BR Rank" value={playerInfo.brRank} highlight />
+                <InfoItem icon={Gamepad2} label="CS Rank" value={playerInfo.csRank} />
+                <InfoItem icon={Zap} label="EXP" value={playerInfo.exp.toLocaleString()} />
+                <InfoItem icon={Star} label="Region" value={playerInfo.region} />
+              </div>
+              
+              <div className="pt-2 border-t border-border">
+                <div className="grid grid-cols-2 gap-3">
+                  <InfoItem icon={Calendar} label="Ngày tạo" value={playerInfo.accountCreated} />
+                  <InfoItem icon={Calendar} label="Đăng nhập" value={playerInfo.lastLogin} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 2: Outfit/Equipment */}
           <div className="bg-card rounded-xl border border-border overflow-hidden relative">
             {showOutfitDetails ? (
               // Detail View - Outfit Names
@@ -244,51 +304,6 @@ export const UIDLookup = () => {
                 </div>
               </div>
             )}
-          </div>
-
-          {/* Section 2: Player Info */}
-          <div className="bg-card rounded-xl border border-border p-4 lg:p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <User className="w-5 h-5 text-muted-foreground" />
-              <h3 className="font-semibold text-foreground">Thông tin người chơi</h3>
-            </div>
-
-            {/* Avatar & Banner */}
-            <div className="mb-4">
-              {/* Banner */}
-              <div className="h-20 lg:h-24 rounded-t-xl bg-gradient-to-r from-secondary to-muted flex items-center justify-center border border-border border-b-0">
-                <span className="text-xs text-muted-foreground">Banner</span>
-              </div>
-              
-              {/* Avatar overlapping banner */}
-              <div className="flex items-end -mt-8 pl-4">
-                <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-xl bg-secondary border-4 border-card flex items-center justify-center">
-                  <User className="w-8 h-8 lg:w-10 lg:h-10 text-muted-foreground" />
-                </div>
-                <div className="ml-3 pb-1">
-                  <h4 className="font-bold text-lg text-foreground">{playerInfo.nickname}</h4>
-                  <p className="text-xs text-muted-foreground font-mono">UID: {playerInfo.uid}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <InfoItem icon={Star} label="Level" value={playerInfo.level.toString()} />
-                <InfoItem icon={Heart} label="Likes" value={playerInfo.likes.toLocaleString()} />
-                <InfoItem icon={Trophy} label="BR Rank" value={playerInfo.brRank} highlight />
-                <InfoItem icon={Gamepad2} label="CS Rank" value={playerInfo.csRank} />
-                <InfoItem icon={Zap} label="EXP" value={playerInfo.exp.toLocaleString()} />
-                <InfoItem icon={Star} label="Region" value={playerInfo.region} />
-              </div>
-              
-              <div className="pt-2 border-t border-border">
-                <div className="grid grid-cols-2 gap-3">
-                  <InfoItem icon={Calendar} label="Ngày tạo" value={playerInfo.accountCreated} />
-                  <InfoItem icon={Calendar} label="Đăng nhập" value={playerInfo.lastLogin} />
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Section 3: Guild Info */}
