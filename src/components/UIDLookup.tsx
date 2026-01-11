@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Search, Loader2, User, Trophy, Star, Calendar, Shield, Gamepad2, Users, Heart, Zap, Image, List, AlertCircle, Clock } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, Loader2, User, Trophy, Star, Calendar, Shield, Gamepad2, Users, Heart, Zap, Image, List, AlertCircle, Clock, XCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
@@ -135,14 +135,30 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
   const [petInfo, setPetInfo] = useState<PetInfo | null>(null);
   const [outfitInfo, setOutfitInfo] = useState<OutfitInfo | null>(null);
   const [error, setError] = useState("");
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [showOutfitDetails, setShowOutfitDetails] = useState(false);
+  const [showValidMessage, setShowValidMessage] = useState(false);
 
   const uidValidation = validateUid(uid);
+
+  // Auto-hide valid message after 2 seconds
+  useEffect(() => {
+    if (uidValidation.type === 'success' && uid) {
+      setShowValidMessage(true);
+      const timer = setTimeout(() => {
+        setShowValidMessage(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    } else {
+      setShowValidMessage(false);
+    }
+  }, [uidValidation.type, uid]);
 
   const handleUidChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setUid(newValue);
     setError("");
+    setFetchError(null);
     
     // Clear results when UID is cleared
     if (!newValue.trim()) {
@@ -162,6 +178,7 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
 
     setLoading(true);
     setError("");
+    setFetchError(null);
     setPlayerInfo(null);
     setGuildInfo(null);
     setPetInfo(null);
@@ -169,6 +186,14 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
 
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // Simulate error for specific UIDs (demo)
+    if (uid === "99999999" || uid === "11111111") {
+      setFetchError("Không tìm thấy người chơi với UID này");
+      setLoading(false);
+      onResultsChange?.(true);
+      return;
+    }
 
     // Return mock data for demo
     setPlayerInfo({ ...mockPlayerData, uid });
@@ -210,26 +235,20 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
               value={uid}
               onChange={handleUidChange}
               onKeyPress={handleKeyPress}
-              className={cn(
-                "transition-all duration-200",
-                uidValidation.type === 'error' && "border-destructive focus-visible:ring-destructive",
-                uidValidation.type === 'warning' && "border-amber-500 focus-visible:ring-amber-500",
-                uidValidation.type === 'success' && "border-green-500 focus-visible:ring-green-500"
-              )}
             />
-            {/* UID Validation Status */}
-            {uid && (
+            {/* UID Validation Status - Text only, no border colors */}
+            {uid && (uidValidation.type === 'error' || uidValidation.type === 'warning' || showValidMessage) && (
               <div className={cn(
                 "flex items-center gap-1.5 text-xs transition-all duration-200 animate-fade-in",
                 uidValidation.type === 'error' && "text-destructive",
                 uidValidation.type === 'warning' && "text-amber-500",
-                uidValidation.type === 'success' && "text-green-500"
+                showValidMessage && uidValidation.type === 'success' && "text-green-500"
               )}>
                 <span className={cn(
                   "w-1.5 h-1.5 rounded-full",
                   uidValidation.type === 'error' && "bg-destructive",
                   uidValidation.type === 'warning' && "bg-amber-500",
-                  uidValidation.type === 'success' && "bg-green-500"
+                  showValidMessage && uidValidation.type === 'success' && "bg-green-500"
                 )} />
                 {uidValidation.message}
               </div>
@@ -274,8 +293,29 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
         </div>
       )}
 
+      {/* Error State - UID not found */}
+      {fetchError && !loading && (
+        <div className="bg-card rounded-xl border border-destructive/30 p-4 lg:p-5 animate-fade-in">
+          <div className="flex items-center gap-2 mb-4">
+            <XCircle className="w-5 h-5 text-destructive" />
+            <h3 className="font-semibold text-destructive">Lỗi tra cứu</h3>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center justify-center">
+              <User className="w-8 h-8 lg:w-10 lg:h-10 text-destructive/50" />
+            </div>
+            <div>
+              <h4 className="font-bold text-lg text-foreground">UID: {uid}</h4>
+              <p className="text-sm text-destructive">{fetchError}</p>
+              <p className="text-xs text-muted-foreground mt-1">Vui lòng kiểm tra lại UID và thử lại</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Results Grid - 4 Sections */}
-      {playerInfo && !loading && (
+      {playerInfo && !loading && !fetchError && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fade-in">
           
           {/* Section 1: Player Info */}
@@ -308,7 +348,7 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
 
             {/* In-Game Info Card */}
             {playerInfo.status === 'in-game' && (
-              <InGameInfoCard inGameTime={playerInfo.inGameTime} />
+              <InGameInfoCard inGameTime={playerInfo.inGameTime} nickname={playerInfo.nickname} />
             )}
 
             <div className="space-y-3">
@@ -543,14 +583,14 @@ const StatusBadge = ({ status, inGameTime }: StatusBadgeProps) => {
       case 'online':
         return {
           label: 'Online',
-          bgClass: 'bg-green-500/20',
+          bgClass: 'bg-green-500/15',
           textClass: 'text-green-400',
           dotClass: 'bg-green-500',
         };
       case 'in-game':
         return {
-          label: inGameTime ? `In-game • ${inGameTime}` : 'In-game',
-          bgClass: 'bg-amber-500/20',
+          label: inGameTime ? `${inGameTime}` : 'In-game',
+          bgClass: 'bg-amber-500/15',
           textClass: 'text-amber-400',
           dotClass: 'bg-amber-500',
         };
@@ -558,7 +598,7 @@ const StatusBadge = ({ status, inGameTime }: StatusBadgeProps) => {
       default:
         return {
           label: 'Offline',
-          bgClass: 'bg-muted',
+          bgClass: 'bg-muted/50',
           textClass: 'text-muted-foreground',
           dotClass: 'bg-muted-foreground',
         };
@@ -569,15 +609,15 @@ const StatusBadge = ({ status, inGameTime }: StatusBadgeProps) => {
 
   return (
     <div className={cn(
-      "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full my-0.5",
+      "inline-flex items-center gap-0.5 px-1 py-px rounded-full",
       config.bgClass
     )}>
       <span className={cn(
-        "w-1.5 h-1.5 rounded-full",
+        "w-1 h-1 rounded-full shrink-0",
         config.dotClass,
         status !== 'offline' && "animate-pulse"
       )} />
-      <span className={cn("text-[10px] font-medium", config.textClass)}>
+      <span className={cn("text-[8px] font-medium leading-none", config.textClass)}>
         {config.label}
       </span>
     </div>
@@ -586,25 +626,32 @@ const StatusBadge = ({ status, inGameTime }: StatusBadgeProps) => {
 
 interface InGameInfoCardProps {
   inGameTime?: string;
+  nickname?: string;
 }
 
-const InGameInfoCard = ({ inGameTime }: InGameInfoCardProps) => {
+const InGameInfoCard = ({ inGameTime, nickname }: InGameInfoCardProps) => {
   return (
-    <div className="mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 animate-pulse-glow">
-      <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
-          <Gamepad2 className="w-4 h-4 text-amber-400" />
+    <div className="mb-4 bg-amber-500/5 rounded-xl border border-amber-500/20 p-4 lg:p-5">
+      <div className="flex items-center gap-2 mb-4">
+        <Gamepad2 className="w-5 h-5 text-amber-400" />
+        <h3 className="font-semibold text-amber-400">Trạng thái trong trận</h3>
+        <div className="ml-auto w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+      </div>
+      
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
+          <Gamepad2 className="w-6 h-6 text-amber-400" />
         </div>
         <div className="flex-1">
-          <p className="text-xs text-amber-400 font-medium">Đang trong trận</p>
-          {inGameTime && (
-            <div className="flex items-center gap-1 text-amber-300">
-              <Clock className="w-3 h-3" />
-              <span className="text-[10px] font-mono">{inGameTime}</span>
-            </div>
-          )}
+          <p className="text-sm font-medium text-foreground">{nickname || 'Người chơi'}</p>
+          <p className="text-xs text-amber-400">Đang trong trận đấu</p>
         </div>
-        <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+        {inGameTime && (
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-500/30">
+            <Clock className="w-3.5 h-3.5 text-amber-400" />
+            <span className="text-xs font-mono text-amber-300">{inGameTime}</span>
+          </div>
+        )}
       </div>
     </div>
   );
