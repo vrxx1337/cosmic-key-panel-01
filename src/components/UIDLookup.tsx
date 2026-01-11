@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Search, Loader2, User, Trophy, Star, Calendar, Shield, Gamepad2, Users, Heart, Zap, Image, List, AlertCircle, Clock, XCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { Skeleton } from "./ui/skeleton";
 import { cn } from "@/lib/utils";
 
 type PlayerStatus = 'online' | 'offline' | 'in-game';
@@ -278,18 +279,97 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
         )}
       </div>
 
-      {/* Loading State with Animation */}
+      {/* Skeleton Loading State */}
       {loading && (
-        <div className="bg-card rounded-xl border border-border p-8 lg:p-12 text-center animate-fade-in">
-          <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-full bg-secondary flex items-center justify-center mx-auto mb-4">
-            <Loader2 className="w-8 h-8 lg:w-10 lg:h-10 text-primary animate-spin" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fade-in">
+          {/* Player Info Skeleton */}
+          <div className="bg-card rounded-xl border border-border p-4 lg:p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Skeleton className="w-5 h-5 rounded" />
+              <Skeleton className="h-5 w-40" />
+            </div>
+            <div className="mb-4">
+              <Skeleton className="h-20 lg:h-24 rounded-t-xl" />
+              <div className="flex items-end -mt-8 pl-4">
+                <Skeleton className="w-16 h-16 lg:w-20 lg:h-20 rounded-xl border-4 border-card" />
+                <div className="ml-3 pb-1 flex-1 space-y-2">
+                  <Skeleton className="h-5 w-32" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <Skeleton className="w-8 h-8 rounded-lg" />
+                    <div className="space-y-1">
+                      <Skeleton className="h-2.5 w-10" />
+                      <Skeleton className="h-4 w-16" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-          <h3 className="font-semibold text-lg lg:text-xl text-foreground mb-2">
-            Đang tải dữ liệu...
-          </h3>
-          <p className="text-sm lg:text-base text-muted-foreground max-w-md mx-auto">
-            Vui lòng đợi trong giây lát
-          </p>
+
+          {/* Outfit Skeleton */}
+          <div className="bg-card rounded-xl border border-border overflow-hidden">
+            <Skeleton className="aspect-[3/4] w-full" />
+          </div>
+
+          {/* Guild Skeleton */}
+          <div className="bg-card rounded-xl border border-border p-4 lg:p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Skeleton className="w-5 h-5 rounded" />
+              <Skeleton className="h-5 w-24" />
+            </div>
+            <div className="flex items-center gap-3 mb-4">
+              <Skeleton className="w-14 h-14 rounded-xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-5 w-28" />
+                <Skeleton className="h-3 w-20" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <Skeleton className="w-8 h-8 rounded-lg" />
+                  <div className="space-y-1">
+                    <Skeleton className="h-2.5 w-10" />
+                    <Skeleton className="h-4 w-14" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Pet Skeleton */}
+          <div className="bg-card rounded-xl border border-border p-4 lg:p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Skeleton className="w-5 h-5 rounded" />
+              <Skeleton className="h-5 w-16" />
+            </div>
+            <div className="flex items-center gap-3 mb-4">
+              <Skeleton className="w-14 h-14 rounded-xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-5 w-20" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <Skeleton className="w-8 h-8 rounded-lg" />
+                  <div className="space-y-1">
+                    <Skeleton className="h-2.5 w-10" />
+                    <Skeleton className="h-4 w-14" />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Skeleton className="h-16 w-full rounded-lg" />
+          </div>
         </div>
       )}
 
@@ -314,12 +394,15 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
         </div>
       )}
 
-      {/* Results Grid - Sections */}
+      {/* Results Grid - Sections with smooth staggered animations */}
       {playerInfo && !loading && !fetchError && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fade-in">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           
           {/* Section 1: Player Info */}
-          <div className="bg-card rounded-xl border border-border p-4 lg:p-5 animate-scale-in">
+          <div 
+            className="bg-card rounded-xl border border-border p-4 lg:p-5 animate-fade-in"
+            style={{ animationDuration: '400ms', animationTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }}
+          >
             <div className="flex items-center gap-2 mb-4">
               <User className="w-5 h-5 text-muted-foreground" />
               <h3 className="font-semibold text-foreground">Thông tin người chơi</h3>
@@ -368,7 +451,10 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
           </div>
 
           {/* Section 2: Outfit/Equipment */}
-          <div className="bg-card rounded-xl border border-border overflow-hidden relative animate-scale-in">
+          <div 
+            className="bg-card rounded-xl border border-border overflow-hidden relative animate-fade-in"
+            style={{ animationDuration: '400ms', animationDelay: '75ms', animationTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)', animationFillMode: 'both' }}
+          >
             <div className={cn(
               "transition-all duration-500 ease-in-out",
               showOutfitDetails ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 absolute inset-0 pointer-events-none"
@@ -437,7 +523,10 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
 
           {/* Section 3: In-Game Status Card (separate card) */}
           {playerInfo.status === 'in-game' && (
-            <div className="bg-card rounded-xl border border-amber-500/30 p-4 lg:p-5 animate-scale-in" style={{ animationDelay: '50ms' }}>
+            <div 
+              className="bg-card rounded-xl border border-amber-500/30 p-4 lg:p-5 animate-fade-in"
+              style={{ animationDuration: '400ms', animationDelay: '150ms', animationTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)', animationFillMode: 'both' }}
+            >
               <div className="flex items-center gap-2 mb-4">
                 <Gamepad2 className="w-5 h-5 text-amber-400" />
                 <h3 className="font-semibold text-amber-400">Trạng thái trong trận</h3>
@@ -463,7 +552,10 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
           )}
 
           {/* Section 4: Guild Info */}
-          <div className="bg-card rounded-xl border border-border p-4 lg:p-5 animate-scale-in" style={{ animationDelay: '100ms' }}>
+          <div 
+            className="bg-card rounded-xl border border-border p-4 lg:p-5 animate-fade-in"
+            style={{ animationDuration: '400ms', animationDelay: '225ms', animationTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)', animationFillMode: 'both' }}
+          >
             <div className="flex items-center gap-2 mb-4">
               <Shield className="w-5 h-5 text-muted-foreground" />
               <h3 className="font-semibold text-foreground">Quân đoàn</h3>
@@ -495,7 +587,10 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
           </div>
 
           {/* Section 5: Pet Info */}
-          <div className="bg-card rounded-xl border border-border p-4 lg:p-5 animate-scale-in" style={{ animationDelay: '150ms' }}>
+          <div 
+            className="bg-card rounded-xl border border-border p-4 lg:p-5 animate-fade-in"
+            style={{ animationDuration: '400ms', animationDelay: '300ms', animationTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)', animationFillMode: 'both' }}
+          >
             <div className="flex items-center gap-2 mb-4">
               <Heart className="w-5 h-5 text-muted-foreground" />
               <h3 className="font-semibold text-foreground">Pet</h3>
