@@ -314,7 +314,7 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
         </div>
       )}
 
-      {/* Results Grid - 4 Sections */}
+      {/* Results Grid - Sections */}
       {playerInfo && !loading && !fetchError && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 animate-fade-in">
           
@@ -337,19 +337,16 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
                 <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-xl bg-secondary border-4 border-card flex items-center justify-center">
                   <User className="w-8 h-8 lg:w-10 lg:h-10 text-muted-foreground" />
                 </div>
-                <div className="ml-3 pb-1">
-                  <h4 className="font-bold text-lg text-foreground">{playerInfo.nickname}</h4>
-                  {/* Online Status - Smaller */}
-                  <StatusBadge status={playerInfo.status} inGameTime={playerInfo.inGameTime} />
+                <div className="ml-3 pb-1 flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-bold text-lg text-foreground truncate">{playerInfo.nickname}</h4>
+                    {/* Status Badge - inline with name */}
+                    <StatusBadge status={playerInfo.status} inGameTime={playerInfo.inGameTime} />
+                  </div>
                   <p className="text-xs text-muted-foreground font-mono">UID: {playerInfo.uid}</p>
                 </div>
               </div>
             </div>
-
-            {/* In-Game Info Card */}
-            {playerInfo.status === 'in-game' && (
-              <InGameInfoCard inGameTime={playerInfo.inGameTime} nickname={playerInfo.nickname} />
-            )}
 
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
@@ -438,7 +435,34 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
             </div>
           </div>
 
-          {/* Section 3: Guild Info */}
+          {/* Section 3: In-Game Status Card (separate card) */}
+          {playerInfo.status === 'in-game' && (
+            <div className="bg-card rounded-xl border border-amber-500/30 p-4 lg:p-5 animate-scale-in" style={{ animationDelay: '50ms' }}>
+              <div className="flex items-center gap-2 mb-4">
+                <Gamepad2 className="w-5 h-5 text-amber-400" />
+                <h3 className="font-semibold text-amber-400">Trạng thái trong trận</h3>
+                <div className="ml-auto w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center">
+                  <Gamepad2 className="w-7 h-7 text-amber-400" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">{playerInfo.nickname}</p>
+                  <p className="text-xs text-amber-400">Đang trong trận đấu</p>
+                </div>
+                {playerInfo.inGameTime && (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 border border-amber-500/30">
+                    <Clock className="w-4 h-4 text-amber-400" />
+                    <span className="text-sm font-mono text-amber-300">{playerInfo.inGameTime}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Section 4: Guild Info */}
           <div className="bg-card rounded-xl border border-border p-4 lg:p-5 animate-scale-in" style={{ animationDelay: '100ms' }}>
             <div className="flex items-center gap-2 mb-4">
               <Shield className="w-5 h-5 text-muted-foreground" />
@@ -470,7 +494,7 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
             )}
           </div>
 
-          {/* Section 4: Pet Info */}
+          {/* Section 5: Pet Info */}
           <div className="bg-card rounded-xl border border-border p-4 lg:p-5 animate-scale-in" style={{ animationDelay: '150ms' }}>
             <div className="flex items-center gap-2 mb-4">
               <Heart className="w-5 h-5 text-muted-foreground" />
@@ -508,8 +532,8 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
         </div>
       )}
 
-      {/* Empty State */}
-      {!playerInfo && !loading && (
+      {/* Empty State - Only show when no search has been made and no error */}
+      {!playerInfo && !loading && !fetchError && (
         <div className="bg-card rounded-xl border border-border p-8 lg:p-12 text-center animate-fade-in">
           <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-full bg-secondary flex items-center justify-center mx-auto mb-4">
             <Gamepad2 className="w-8 h-8 lg:w-10 lg:h-10 text-muted-foreground" />
@@ -609,50 +633,17 @@ const StatusBadge = ({ status, inGameTime }: StatusBadgeProps) => {
 
   return (
     <div className={cn(
-      "inline-flex items-center gap-0.5 px-1 py-px rounded-full",
+      "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full shrink-0",
       config.bgClass
     )}>
       <span className={cn(
-        "w-1 h-1 rounded-full shrink-0",
+        "w-1.5 h-1.5 rounded-full shrink-0",
         config.dotClass,
         status !== 'offline' && "animate-pulse"
       )} />
-      <span className={cn("text-[8px] font-medium leading-none", config.textClass)}>
+      <span className={cn("text-[10px] font-medium leading-none", config.textClass)}>
         {config.label}
       </span>
-    </div>
-  );
-};
-
-interface InGameInfoCardProps {
-  inGameTime?: string;
-  nickname?: string;
-}
-
-const InGameInfoCard = ({ inGameTime, nickname }: InGameInfoCardProps) => {
-  return (
-    <div className="mb-4 bg-amber-500/5 rounded-xl border border-amber-500/20 p-4 lg:p-5">
-      <div className="flex items-center gap-2 mb-4">
-        <Gamepad2 className="w-5 h-5 text-amber-400" />
-        <h3 className="font-semibold text-amber-400">Trạng thái trong trận</h3>
-        <div className="ml-auto w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-      </div>
-      
-      <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
-          <Gamepad2 className="w-6 h-6 text-amber-400" />
-        </div>
-        <div className="flex-1">
-          <p className="text-sm font-medium text-foreground">{nickname || 'Người chơi'}</p>
-          <p className="text-xs text-amber-400">Đang trong trận đấu</p>
-        </div>
-        {inGameTime && (
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-500/30">
-            <Clock className="w-3.5 h-3.5 text-amber-400" />
-            <span className="text-xs font-mono text-amber-300">{inGameTime}</span>
-          </div>
-        )}
-      </div>
     </div>
   );
 };
