@@ -422,11 +422,10 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
                 </div>
                 <div className="ml-3 pb-1 flex-1 min-w-0">
                   <h4 className="font-bold text-lg text-foreground truncate leading-tight">{playerInfo.nickname}</h4>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <StatusBadge status={playerInfo.status} inGameTime={playerInfo.inGameTime} />
-                    <span className="text-[10px] text-muted-foreground/60">•</span>
-                    <p className="text-[11px] text-muted-foreground font-mono">UID: {playerInfo.uid}</p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <StatusBadge status={playerInfo.status} />
                   </div>
+                  <p className="text-[11px] text-muted-foreground font-mono mt-0.5">UID: {playerInfo.uid}</p>
                 </div>
               </div>
             </div>
@@ -527,26 +526,56 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
               className="bg-card rounded-xl border border-amber-500/30 p-4 lg:p-5 animate-fade-in"
               style={{ animationDuration: '400ms', animationDelay: '150ms', animationTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)', animationFillMode: 'both' }}
             >
-              <div className="flex items-center gap-2 mb-4">
-                <Gamepad2 className="w-5 h-5 text-amber-400" />
-                <h3 className="font-semibold text-amber-400">Trạng thái trong trận</h3>
-                <div className="ml-auto w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center">
-                  <Gamepad2 className="w-7 h-7 text-amber-400" />
+              {/* Header */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
+                  <Gamepad2 className="w-6 h-6 text-amber-400" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-foreground">{playerInfo.nickname}</p>
-                  <p className="text-xs text-amber-400">Đang trong trận đấu</p>
+                  <h3 className="font-bold text-lg text-foreground">Đang trong trận</h3>
+                  <p className="text-xs text-amber-400">Battle Royale - Đội</p>
                 </div>
-                {playerInfo.inGameTime && (
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 border border-amber-500/30">
-                    <Clock className="w-4 h-4 text-amber-400" />
-                    <span className="text-sm font-mono text-amber-300">{playerInfo.inGameTime}</span>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/40">
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                  <span className="text-xs font-bold text-amber-300">LIVE</span>
+                </div>
+              </div>
+              
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 rounded-xl bg-secondary/50 border border-border">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center">
+                      <span className="text-[10px]">📍</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground">Bản đồ</span>
                   </div>
-                )}
+                  <p className="font-bold text-foreground">Bermuda</p>
+                </div>
+                
+                <div className="p-3 rounded-xl bg-secondary/50 border border-border">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Clock className="w-4 h-4 text-amber-400" />
+                    <span className="text-xs text-muted-foreground">Thời gian</span>
+                  </div>
+                  <p className="font-bold text-foreground">{playerInfo.inGameTime || "0:00"}</p>
+                </div>
+                
+                <div className="p-3 rounded-xl bg-secondary/50 border border-border">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Users className="w-4 h-4 text-cyan-400" />
+                    <span className="text-xs text-muted-foreground">Còn sống</span>
+                  </div>
+                  <p className="font-bold text-foreground">24/48</p>
+                </div>
+                
+                <div className="p-3 rounded-xl bg-secondary/50 border border-border">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Zap className="w-4 h-4 text-red-400" />
+                    <span className="text-xs text-muted-foreground">Kills</span>
+                  </div>
+                  <p className="font-bold text-foreground">3</p>
+                </div>
               </div>
             </div>
           )}
