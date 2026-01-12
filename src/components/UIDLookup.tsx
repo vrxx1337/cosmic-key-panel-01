@@ -417,16 +417,16 @@ export const UIDLookup = ({ onResultsChange }: UIDLookupProps) => {
               
               {/* Avatar overlapping banner */}
               <div className="flex items-end -mt-8 pl-4">
-                <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-xl bg-secondary border-4 border-card flex items-center justify-center">
+                <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-xl bg-secondary border-4 border-card flex items-center justify-center shrink-0">
                   <User className="w-8 h-8 lg:w-10 lg:h-10 text-muted-foreground" />
                 </div>
                 <div className="ml-3 pb-1 flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-bold text-lg text-foreground truncate">{playerInfo.nickname}</h4>
-                    {/* Status Badge - inline with name */}
+                  <h4 className="font-bold text-lg text-foreground truncate leading-tight">{playerInfo.nickname}</h4>
+                  <div className="flex items-center gap-2 mt-0.5">
                     <StatusBadge status={playerInfo.status} inGameTime={playerInfo.inGameTime} />
+                    <span className="text-[10px] text-muted-foreground/60">•</span>
+                    <p className="text-[11px] text-muted-foreground font-mono">UID: {playerInfo.uid}</p>
                   </div>
-                  <p className="text-xs text-muted-foreground font-mono">UID: {playerInfo.uid}</p>
                 </div>
               </div>
             </div>
